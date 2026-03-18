@@ -1,0 +1,45 @@
+[
+  {
+    "model": "app.actionpermission",
+    "pk": 1,
+    "fields": {
+      "resource": "article",
+      "action": "view",
+      "name": "Может просматривать статьи"
+    }
+  },
+  {
+    "model": "app.actionpermission",
+    "pk": 2,
+    "fields": {
+      "resource": "article",
+      "action": "create",
+      "name": "Может создавать статьи"
+    }
+  },
+  {
+    "model": "app.actionpermission",
+    "pk": 3,
+    "fields": {
+      "resource": "article",
+      "action": "delete",
+      "name": "Может удалять статьи"
+    }
+  },
+  {
+    "model": "app.role",
+    "pk": 1,
+    "fields": {
+      "name": "User",
+      "permissions": [1]
+    }
+  },
+  {
+    "model": "app.role",
+    "pk": 2,
+    "fields": {
+      "name": "Admin",
+      "permissions": [1, 2, 3]
+    }
+  }
+]
