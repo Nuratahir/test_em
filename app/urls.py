@@ -1,5 +1,13 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
+
 from . import views
+
+
+router = DefaultRouter()
+router.register(r'admin/permissions', views.ActionPermissionViewSet, basename='permission')
+router.register(r'admin/roles', views.RoleViewSet, basename='role')
+
 
 app_name = 'api'
 
@@ -17,3 +25,6 @@ urlpatterns = [
     path('resources/articles/create/', views.ArticleCreateView.as_view(), name='article-create'),
     path('resources/articles/<int:pk>/delete/', views.ArticleDeleteView.as_view(), name='article-delete'),
 ]
+
+# Добавляем маршруты от router
+urlpatterns += router.urls

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from app.models import Role
+from app.models import Role, ActionPermission
 
 User = get_user_model()
 
@@ -102,4 +102,47 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.patronymic = validated_data.get('patronymic', instance.patronymic)
         instance.save()
+        return instance
+
+
+class ActionPermissionSerializer(serializers.ModelSerializer):
+    """ Сериализатор для модели разрешений """
+
+    class Meta:
+        model = ActionPermission
+        fields = ['id', 'resource', 'action', 'name']
+        read_only_fields = ['id']
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    """ Сериализатор для модели ролей """
+    permissions = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=ActionPermission.objects.all()
+    )
+    permissions_detail = ActionPermissionSerializer(
+        source='permissions',
+        many=True,
+        read_only=True
+    )
+
+    class Meta:
+        model = Role
+        fields = ['id', 'name', 'permissions', 'permissions_detail']
+        read_only_fields = ['id']
+
+    def create(self, validated_data):
+        permissions = validated_data.pop('permissions', [])
+        role = Role.objects.create(**validated_data)
+        role.permissions.set(permissions)
+        return role
+
+    def update(self, instance, validated_data):
+        permissions = validated_data.pop('permissions', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if permissions is not None:
+            instance.permissions.set(permissions)
         return instance

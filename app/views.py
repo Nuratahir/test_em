@@ -1,17 +1,19 @@
 from django.shortcuts import render
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
 
-
+from .models import ActionPermission, Role
 from .serializers import (
     UserSerializer,
     RegisterSerializer,
-    UpdateProfileSerializer
+    UpdateProfileSerializer,
+    ActionPermissionSerializer,
+    RoleSerializer
 )
-from .permissions import HasResourcePermission
+from .permissions import HasResourcePermission, IsAdminUser
 
 User = get_user_model()
 
@@ -135,3 +137,37 @@ class ArticleDeleteView(APIView):
         return Response({
             'message': f'Статья {pk} удалена'
         })
+
+
+class ActionPermissionViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet для CRUD операций с разрешениями.
+    Доступно только суперпользователям.
+
+    GET    /admin/permissions/          - список всех разрешений
+    POST   /admin/permissions/          - создать новое разрешение
+    GET    /admin/permissions/{id}/     - получить конкретное разрешение
+    PUT    /admin/permissions/{id}/     - полностью обновить
+    PATCH  /admin/permissions/{id}/     - частично обновить
+    DELETE /admin/permissions/{id}/     - удалить разрешение
+    """
+    queryset = ActionPermission.objects.all()
+    serializer_class = ActionPermissionSerializer
+    permission_classes = [IsAdminUser]
+
+
+class RoleViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet для CRUD операций с ролями.
+    Доступно только суперпользователям.
+
+    GET    /admin/roles/          - список всех ролей
+    POST   /admin/roles/          - создать новую роль
+    GET    /admin/roles/{id}/     - получить конкретную роль
+    PUT    /admin/roles/{id}/     - полностью обновить
+    PATCH  /admin/roles/{id}/     - частично обновить
+    DELETE /admin/roles/{id}/     - удалить роль
+    """
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = [IsAdminUser]

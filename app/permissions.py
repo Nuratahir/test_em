@@ -46,3 +46,10 @@ class HasResourcePermission(BasePermission):
 
         # Проверяем наличие нужной пары (resource, action)
         return (resource, action) in user_permissions
+
+
+class IsAdminUser(BasePermission):
+    """ Разрешение только для суперпользователей
+        Admin API """
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and request.user.is_superuser)
